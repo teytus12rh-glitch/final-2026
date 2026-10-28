@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Leandro Corrêa Vision Pro — TCL 55 OLED & Xbox Hub</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      outline: none;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e2638 0%, #111622 45%, #080a0f 100%);
+      color: #f1f5f9;
+      overflow-x: hidden;
+      overflow-y: auto;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      contain: layout style paint;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Light Gray & Slate Modern Surfaces */
+    .surface-slate {
+      background: rgba(30, 38, 54, 0.78);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(226, 232, 240, 0.12);
+    }
+    .card-slate {
+      background: linear-gradient(145deg, rgba(38, 48, 68, 0.82) 0%, rgba(20, 26, 38, 0.94) 100%);
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(226, 232, 240, 0.14);
+      box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.7);
+    }
+    .card-slate-subtle {
+      background: rgba(25, 33, 48, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* SPOTLIGHT BEAM & FOCUS EFFECT */
+    .tv-focusable {
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+    .tv-focusable::before {
+      content: '';
+      position: absolute;
+      top: -14px;
+      left: 15%;
+      right: 15%;
+      height: 12px;
+      background: radial-gradient(ellipse at center, rgba(147, 197, 253, 0.9) 0%, rgba(59, 130, 246, 0.4) 50%, transparent 100%);
+      filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      transform: translateY(-4px);
+      z-index: 60;
+    }
+    .tv-focusable:focus, .tv-focusable.tv-focused {
+      transform: scale(1.06) translateY(-2px);
+      z-index: 50;
+      outline: none;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 3px #3b82f6, 0 20px 40px -8px rgba(0, 0, 0, 0.85), 0 0 35px rgba(59, 130, 246, 0.45) !important;
+    }
+    .tv-focusable:focus::before, .tv-focusable.tv-focused::before {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Xbox Focus Variant */
+    .tv-focusable.xbox-focus:focus, .tv-focusable.xbox-focus.tv-focused {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 0 3px #10b981, 0 20px 40px -8px rgba(0, 0, 0, 0.85), 0 0 35px rgba(16, 185, 129, 0.45) !important;
+    }
+    .tv-focusable.xbox-focus:focus::before, .tv-focusable.xbox-focus.tv-focused::before {
+      background: radial-gradient(ellipse at center, rgba(110, 231, 183, 0.95) 0%, rgba(16, 185, 129, 0.5) 50%, transparent 100%);
+    }
+
+    /* LG Audio Focus Variant */
+    .tv-focusable.lg-focus:focus, .tv-focusable.lg-focus.tv-focused {
+      border-color: #f472b6 !important;
+      box-shadow: 0 0 0 3px #ec4899, 0 20px 40px -8px rgba(0, 0, 0, 0.85), 0 0 35px rgba(236, 72, 153, 0.45) !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(226, 232, 240, 0.2); border-radius: 999px; }
+
+    /* Estilo de Opções Apagadas (Indisponíveis no Hardware da TV) */
+    .tv-option-disabled {
+      opacity: 0.28 !important;
+      background: rgba(15, 23, 42, 0.7) !important;
+      color: #64748b !important;
+      border-color: rgba(51, 65, 85, 0.6) !important;
+      text-decoration: line-through !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+    .tv-option-disabled::before {
+      display: none !important;
+    }
+
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+  <!-- Ambient Light Gray & Slate Studio Glow -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 left-10 w-[50rem] h-[28rem] bg-gradient-to-br from-blue-600/12 via-indigo-800/8 to-transparent rounded-full blur-[130px]"></div>
+    <div class="absolute top-1/3 -right-32 w-[45rem] h-[32rem] bg-gradient-to-l from-emerald-600/10 via-teal-800/8 to-transparent rounded-full blur-[130px]"></div>
+    <div class="absolute -bottom-32 left-1/3 w-[40rem] h-[26rem] bg-gradient-to-tr from-purple-600/10 to-transparent rounded-full blur-[120px]"></div>
+  </div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="relative z-10 w-full max-w-[1920px] mx-auto px-5 lg:px-12 py-3.5 flex flex-col gap-3.5">
+
+    <!-- 1. HEADER: METEOROLOGIA OURINHOS SP + DÓLAR + REDE + LG SOUND + CLOCK -->
+    <header class="surface-slate rounded-3xl p-3.5 lg:p-4 border border-slate-700/60 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+      
+      <!-- Left: Weather Ourinhos SP + Mudar Cidade -->
+      <div class="flex items-center gap-3.5">
+        <span id="topWeatherIcon" class="text-3xl md:text-4xl drop-shadow filter">☀️</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="topWeatherTemp" class="text-2xl md:text-3xl font-black text-white tracking-tight leading-none">28°C</span>
+            <span id="topWeatherCondition" class="text-xs text-blue-300 font-bold bg-blue-500/20 px-2.5 py-0.5 rounded-full border border-blue-400/30">Ensolarado</span>
+            <span class="text-[11px] text-slate-400 font-mono" id="topWeatherMaxMin">18° / 31°</span>
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <span id="currentCityLabel" class="text-xs font-bold text-white flex items-center gap-1">
+              <span class="text-blue-400">📍</span> Ourinhos, SP
+            </span>
+            <button onclick="openLocationModal()" class="tv-focusable text-[10px] text-blue-300 hover:text-white px-2.5 py-0.5 rounded-full bg-slate-700/60 font-bold flex items-center gap-1 border border-slate-600/50" tabindex="0">
+              <span>✏️</span> Mudar Cidade
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Detailed Meteorology Metrics -->
+      <div class="hidden xl:flex items-center gap-4 text-xs text-slate-300 border-x border-slate-700/70 px-4">
+        <div>
+          <div class="text-[9px] text-slate-400 uppercase font-semibold">Sensação</div>
+          <div class="font-bold text-white text-xs" id="topWeatherFeels">30°C</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-slate-400 uppercase font-semibold">Umidade</div>
+          <div class="font-bold text-cyan-300 text-xs" id="topWeatherHumidity">62%</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-slate-400 uppercase font-semibold">Vento</div>
+          <div class="font-bold text-white text-xs" id="topWeatherWind">12 km/h</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-slate-400 uppercase font-semibold">Índice UV</div>
+          <div class="font-bold text-amber-300 text-xs" id="topWeatherUv">6 (Moderado)</div>
+        </div>
+      </div>
+
+      <!-- Quick Status Badges: Dólar + Home Theater LG + Wi-Fi -->
+      <div class="hidden md:flex items-center gap-2.5">
+        <!-- Dólar -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-xs">
+          <span class="text-emerald-400 font-bold">💵 Dólar:</span>
+          <span class="text-white font-mono font-bold">R$ 5,37</span>
+          <span class="text-[10px] text-emerald-400 font-bold">(+0,30%)</span>
+        </div>
+
+        <!-- Home Theater LG Bluetooth Badge -->
+        <button onclick="openDailyOptionsModal()" class="tv-focusable lg-focus flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-pink-950/40 border border-pink-500/40 text-xs" tabindex="0" title="Home Theater LG Bluetooth">
+          <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse"></span>
+          <span class="font-bold text-white">LG Home Theater:</span>
+          <span id="topLgSoundStatus" class="text-pink-300 font-bold font-mono">Conectado (BT)</span>
+        </button>
+
+        <!-- Wi-Fi Speed -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-xs">
+          <span class="text-cyan-400">📶</span>
+          <span class="font-bold text-white font-mono">480 Mbps</span>
+          <span class="text-[10px] text-slate-400 font-mono">(9ms)</span>
+        </div>
+      </div>
+
+      
+      <!-- Brand Badge: Leandro Corrêa Vision Pro -->
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-blue-600/20 via-indigo-600/15 to-purple-600/20 border border-blue-400/30 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+        <span class="text-xs font-black text-white tracking-wider">LEANDRO CORRÊA</span>
+        <span class="text-[9px] text-blue-300 font-extrabold px-1.5 py-0.5 rounded-md bg-blue-500/25 border border-blue-400/40">VISION PRO</span>
+      </div>
+
+      <!-- Right: Clock, Daily Options Button, About Avatar -->
+      <div class="flex items-center gap-2.5">
+        <div class="text-right border-l border-slate-700/70 pl-3">
+          <div id="clockDisplay" class="text-xl md:text-2xl font-black text-white tracking-wider mono leading-none">
+            12:00:00
+          </div>
+          <div id="dateDisplay" class="text-[10px] text-blue-400 capitalize font-semibold mt-0.5">
+            Carregando data...
+          </div>
+        </div>
+
+        <!-- Botão Opções do Dia a Dia -->
+        <button onclick="openDailyOptionsModal()" class="tv-focusable px-3 py-2 rounded-2xl bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white border border-blue-500/40 text-xs font-extrabold flex items-center gap-1.5 shadow" tabindex="0" title="Opções Úteis do Dia a Dia">
+          <span>⚙️</span> <span class="hidden sm:inline">Opções</span>
+        </button>
+
+        <!-- Avatar / Sobre Leandro Corrêa -->
+        <div onclick="openAboutModal()" class="tv-focusable p-1 rounded-2xl surface-slate border border-slate-600/50 cursor-pointer" tabindex="0" title="Sobre o Criador (Leandro Corrêa)">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-700 flex items-center justify-center text-xs font-black text-white shadow">
+            LC
+          </div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- 2. HERO SHOWCASE: XBOX SERIES S + CINEMA & YOUTUBE 4K -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
+      
+      <!-- HERO 1: XBOX SERIES S (HDMI 1) -->
+      <div class="lg:col-span-1 rounded-3xl p-5 card-slate border border-emerald-500/40 relative overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all">
+        <div class="absolute -right-8 -bottom-8 w-44 h-44 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div>
+          <div class="flex items-center justify-between pb-2 border-b border-slate-700/60 mb-3">
+            <div class="flex items-center gap-2">
+              <svg class="w-6 h-6 fill-current text-emerald-400" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.8 17.5c-3.14-.38-5.74-2.31-6.85-5.11 1.48 1.09 3.4 1.83 5.48 2.05-.38.74-.77 1.5-1.15 2.26.84.3 1.69.46 2.52.8zm3.6 0c.83-.34 1.68-.5 2.52-.8-.38-.76-.77-1.52-1.15-2.26 2.08-.22 4-.96 5.48-2.05-1.11 2.8-3.71 4.73-6.85 5.11zm-5.7-8.15c-1.39-1.92-2.1-4.22-2.1-6.52 2.12-.9 4.46-1.38 6.9-1.38s4.78.48 6.9 1.38c0 2.3-.71 4.6-2.1 6.52-1.5-2.28-3.32-3.8-4.8-4.15-1.48.35-3.3 1.87-4.8 4.15z"/>
+              </svg>
+              <span class="text-sm font-extrabold text-white tracking-wider">XBOX SERIES S</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40">120 FPS VRR</span>
+          </div>
+
+          <h3 class="text-2xl font-black text-white leading-tight">
+            Pronto para Jogar
+          </h3>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            Comutação direta para o HDMI 1 com Modo Jogo (ALLM), resposta ultrarrápida de 0.1ms na TV TCL 55 OLED e áudio Dolby Atmos no Home Theater LG.
+          </p>
+
+          <div class="mt-3 p-2.5 rounded-2xl bg-black/40 border border-slate-700/60 text-xs flex items-center justify-between">
+            <span class="text-slate-400">Destaques:</span>
+            <span class="text-emerald-400 font-bold">Forza Horizon, CoD, xCloud</span>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center gap-2">
+          <button onclick="launchXboxConsole()" class="tv-focusable xbox-focus flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-700 text-white font-black text-xs shadow-lg flex items-center justify-center gap-2 hover:brightness-110" tabindex="0">
+            <span>🎮</span> LIGAR XBOX (HDMI 1)
+          </button>
+          <button onclick="launchCloudGaming()" class="tv-focusable xbox-focus px-3.5 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-white font-bold text-xs" tabindex="0" title="Xbox Cloud Gaming">
+            ☁️
+          </button>
+        </div>
+      </div>
+
+      <!-- HERO 2: CINEMA & YOUTUBE 4K MASTER BANNER -->
+      <div class="lg:col-span-2 rounded-3xl p-6 card-slate border border-blue-500/30 relative overflow-hidden flex flex-col justify-end group hover:border-blue-400 transition-all min-h-[250px]">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-0"></div>
+        <div class="absolute -right-10 top-0 w-80 h-full bg-gradient-to-l from-blue-700/20 via-indigo-900/15 to-transparent z-0"></div>
+
+        <div class="relative z-10 max-w-xl space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-red-600/30 text-red-400 font-bold text-[11px] border border-red-500/40">
+              YOUTUBE 4K & CINEMA HUB
+            </span>
+            <span class="text-xs text-blue-300 font-semibold">● Dolby Vision IQ & Home LG Surround</span>
+          </div>
+
+          <h2 class="text-3xl md:text-4xl font-black text-white leading-tight">
+            Filmes, Séries e Canais do YouTube
+          </h2>
+
+          <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+            Acesso com 1 clique ao YouTube 4K, SmartTube, Netflix, Prime Video, Disney+, Max, Globoplay e Stremio calibrados para a tela OLED TCL de 55 polegadas.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            <button onclick="launchApp('youtube', 'YouTube 4K', 'https://www.youtube.com/tv')" class="tv-focusable px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs shadow-lg flex items-center gap-2" tabindex="0">
+              <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Abrir YouTube
+            </button>
+            <button onclick="launchApp('smarttube', 'SmartTube', 'https://smarttubeapp.github.io')" class="tv-focusable px-4 py-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold text-xs flex items-center gap-1.5" tabindex="0">
+              ⚡ SmartTube (Sem Ads)
+            </button>
+            <button onclick="launchApp('netflix', 'Netflix Filmes', 'https://www.netflix.com')" class="tv-focusable px-4 py-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5" tabindex="0">
+              🎬 Netflix
+            </button>
+            <button onclick="launchApp('prime', 'Prime Video', 'https://www.primevideo.com')" class="tv-focusable px-4 py-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5" tabindex="0">
+              📦 Prime Video
+            </button>
+            <button onclick="launchApp('stremio', 'Stremio Cinema', 'https://www.stremio.com')" class="tv-focusable px-4 py-2.5 rounded-full bg-purple-600/40 text-purple-200 border border-purple-400/30 font-bold text-xs" tabindex="0">
+              🟣 Stremio
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 3. SEÇÃO FOCADA EM GAMES & CONSOLES -->
+    <section class="space-y-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-5 bg-emerald-500 rounded-full"></div>
+          <h3 class="text-base font-extrabold text-white tracking-wide">Zona Gamer & Xbox Series S</h3>
+          <span class="text-xs text-slate-400">Atalhos rápidos para jogos, nuvem e emulação</span>
+        </div>
+        <span class="text-xs text-emerald-400 font-bold">Painel 120Hz Ativo</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <!-- Game 1: Xbox HDMI Switch -->
+        <button onclick="launchXboxConsole()" class="tv-focusable xbox-focus card-slate p-3.5 rounded-2xl border border-emerald-500/40 hover:border-emerald-400 text-left flex flex-col justify-between h-28 group" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-emerald-400 group-hover:scale-110 transition-transform">🎮</span>
+            <span class="text-[9px] bg-emerald-950 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">HDMI 1</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">Xbox Series S</div>
+            <div class="text-[10px] text-slate-400">Console Físico 120Hz</div>
+          </div>
+        </button>
+
+        <!-- Game 2: Xbox Cloud Gaming -->
+        <button onclick="launchCloudGaming()" class="tv-focusable xbox-focus card-slate p-3.5 rounded-2xl border border-slate-700 hover:border-emerald-400 text-left flex flex-col justify-between h-28 group" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-emerald-400 group-hover:scale-110 transition-transform">☁️</span>
+            <span class="text-[9px] bg-slate-800 text-slate-300 font-bold px-1.5 py-0.5 rounded">NUVEM</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">Xbox Cloud Gaming</div>
+            <div class="text-[10px] text-slate-400">Game Pass na TV</div>
+          </div>
+        </button>
+
+        <!-- Game 3: Twitch -->
+        <button onclick="launchApp('twitch', 'Twitch TV', 'https://www.twitch.tv')" class="tv-focusable card-slate p-3.5 rounded-2xl border border-slate-700 hover:border-purple-400 text-left flex flex-col justify-between h-28 group" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-purple-400 group-hover:scale-110 transition-transform">👾</span>
+            <span class="text-[9px] bg-slate-800 text-purple-300 font-bold px-1.5 py-0.5 rounded">LIVES</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">Twitch TV</div>
+            <div class="text-[10px] text-slate-400">Streams & Campeonatos</div>
+          </div>
+        </button>
+
+        <!-- Game 4: RetroArch Emuladores -->
+        <button onclick="launchApp('retroarch', 'RetroArch', '#')" class="tv-focusable card-slate p-3.5 rounded-2xl border border-slate-700 hover:border-cyan-400 text-left flex flex-col justify-between h-28 group" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-cyan-400 group-hover:scale-110 transition-transform">🕹️</span>
+            <span class="text-[9px] bg-slate-800 text-cyan-300 font-bold px-1.5 py-0.5 rounded">RETRO</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">RetroArch / Jogos</div>
+            <div class="text-[10px] text-slate-400">Emulador de Clássicos</div>
+          </div>
+        </button>
+
+        <!-- Game 5: GeForce NOW -->
+        <button onclick="launchApp('geforce', 'GeForce NOW', 'https://play.geforcenow.com')" class="tv-focusable card-slate p-3.5 rounded-2xl border border-slate-700 hover:border-green-400 text-left flex flex-col justify-between h-28 group" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-green-400 group-hover:scale-110 transition-transform">🟩</span>
+            <span class="text-[9px] bg-slate-800 text-green-300 font-bold px-1.5 py-0.5 rounded">RTX 4080</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">GeForce NOW</div>
+            <div class="text-[10px] text-slate-400">Ray Tracing na Nuvem</div>
+          </div>
+        </button>
+
+        <!-- Game 6: Otimizador Gamer (Limpar RAM) -->
+        <button onclick="cleanRamGamer()" class="tv-focusable xbox-focus card-slate p-3.5 rounded-2xl border border-emerald-500/40 hover:border-emerald-400 text-left flex flex-col justify-between h-28 group bg-emerald-950/20" tabindex="0">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl text-emerald-400 group-hover:scale-110 transition-transform">🚀</span>
+            <span class="text-[9px] bg-emerald-900 text-emerald-300 font-bold px-1.5 py-0.5 rounded">BOOST</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">Modo Turbo TV</div>
+            <div class="text-[10px] text-emerald-300">Liberar 100% de RAM</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. SEÇÃO FOCADA EM CINEMA, FILMES & YOUTUBE -->
+    <section class="space-y-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-5 bg-blue-500 rounded-full"></div>
+          <h3 class="text-base font-extrabold text-white tracking-wide">Cinema, YouTube & Streaming</h3>
+          <span class="text-xs text-slate-400">Seus canais de vídeos, filmes e séries favoritos</span>
+        </div>
+        <button onclick="openEditAppsModal()" class="tv-focusable px-3 py-1 rounded-full text-xs font-bold text-blue-300 bg-slate-800/80 hover:bg-slate-700 flex items-center gap-1 border border-slate-700" tabindex="0">
+          <span>⚙️</span> Personalizar Apps
+        </button>
+      </div>
+
+      <!-- Cinema Apps Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3" id="cinemaAppsContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- 5. PAINEL INFORMATIVO: HARDWARE DA TV TCL + HOME THEATER LG + NOTÍCIAS + REDE -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-3.5">
+      
+      <!-- Card 1: Hardware TCL 55 OLED -->
+      <div class="card-slate rounded-3xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">🖥️ Hardware da TV</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">TCL 55 OLED</span>
+        </div>
+        <div class="py-2 text-xs space-y-1 text-slate-300">
+          <div class="flex justify-between"><span>Display:</span> <span class="text-white font-bold">4K 120Hz OLED VRR</span></div>
+          <div class="flex justify-between"><span>RAM Livre:</span> <span class="text-emerald-400 font-mono font-bold" id="ramText">1.2 GB / 3.0 GB</span></div>
+          <div class="flex justify-between"><span>Armazenamento:</span> <span class="text-cyan-300 font-mono font-bold">11.4 GB Livres</span></div>
+          <div class="flex justify-between"><span>Tempo Resposta:</span> <span class="text-white font-mono font-bold">0.1 ms (OLED)</span></div>
+        </div>
+        <button onclick="cleanRamGamer()" class="tv-focusable w-full py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center justify-center gap-1 border border-slate-700" tabindex="0">
+          <span>⚡</span> Otimizar TV para Filmes e Jogos
+        </button>
+      </div>
+
+      <!-- Card 2: Home Theater LG Sound Sync Bluetooth -->
+      <div class="card-slate rounded-3xl p-4 flex flex-col justify-between border-pink-500/30">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">🔊 Home Theater LG</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-bold border border-pink-500/40">BLUETOOTH</span>
+        </div>
+        <div class="py-2 text-xs space-y-1.5 text-slate-300">
+          <div class="flex justify-between items-center">
+            <span>Status:</span>
+            <span id="lgSoundCardStatus" class="text-emerald-400 font-bold flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado
+            </span>
+          </div>
+          <div class="flex justify-between"><span>Saída:</span> <span id="currentAudioOutput" class="text-white font-bold">Home LG (Sem Fio)</span></div>
+          <div class="flex justify-between"><span>Modo de Som:</span> <span class="text-pink-300 font-bold">Cinema Surround 3D</span></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="toggleLgSoundPower()" id="btnLgSoundPower" class="tv-focusable lg-focus py-1.5 rounded-xl bg-pink-600/30 text-pink-300 border border-pink-500/40 text-xs font-bold hover:bg-pink-600 hover:text-white" tabindex="0">
+            Desligar Som
+          </button>
+          <button onclick="openDailyOptionsModal()" class="tv-focusable py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold border border-slate-700 hover:bg-slate-700" tabindex="0">
+            Ajustar
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3: Rede & Velocidade de Conexão -->
+      <div class="card-slate rounded-3xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">📶 Rede & Velocidade</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">Wi-Fi 6 (5GHz)</span>
+        </div>
+        <div class="py-2 text-xs space-y-1 text-slate-300">
+          <div class="flex justify-between"><span>Download:</span> <span class="text-emerald-400 font-mono font-bold" id="netDownloadSpeed">480 Mbps</span></div>
+          <div class="flex justify-between"><span>Upload:</span> <span class="text-blue-300 font-mono font-bold">120 Mbps</span></div>
+          <div class="flex justify-between"><span>Latência (Ping):</span> <span class="text-cyan-300 font-mono font-bold" id="netPing">9 ms</span></div>
+          <div class="flex justify-between"><span>Status 4K:</span> <span class="text-white font-bold">Pronto para 4K HDR</span></div>
+        </div>
+        <button onclick="testNetworkSpeed()" class="tv-focusable w-full py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center justify-center gap-1 border border-slate-700" tabindex="0">
+          <span>🔄</span> Testar Velocidade de Rede
+        </button>
+      </div>
+
+      <!-- Card 4: Notícias em Geral (Política, Economia, Tecnologia) -->
+      <div class="card-slate rounded-3xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">📰 Notícias do Dia</span>
+          <span id="newsCategoryBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">TECNOLOGIA</span>
+        </div>
+        <div class="py-2 flex-1 flex flex-col justify-center">
+          <p id="newsTickerText" class="text-xs text-slate-100 font-medium leading-relaxed">
+            "Xbox Game Pass recebe novos lançamentos de peso com suporte a 120 FPS no Series S."
+          </p>
+        </div>
+        <div class="flex items-center justify-between pt-1 border-t border-slate-700/60 text-xs text-slate-400">
+          <span>Troca em <span id="newsCountdown" class="font-mono text-cyan-400">10s</span></span>
+          <button onclick="nextNewsHeadline()" class="tv-focusable px-2.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700" tabindex="0">Próxima ❯</button>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+
+    <!-- 6. QUADROS DE AJUSTES E OPÇÕES: TV TCL 55 OLED & XIAOMI MI TV STICK -->
+    <section class="space-y-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-5 bg-cyan-400 rounded-full"></div>
+          <div>
+            <h3 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+              Quadros de Controle da TV & Dispositivos
+              <span id="hardwareModeBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 font-mono">TCL 55 OLED: Todos Recursos Disponíveis</span>
+            </h3>
+            <p class="text-[11px] text-slate-400">Recursos suportados aparecem acessíveis; recursos ausentes na TV ficam apagados automaticamente</p>
+          </div>
+        </div>
+
+        <!-- Seletor de Perfil de Hardware da TV (Permite testar opções acesas vs apagadas) -->
+        <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-800/90 border border-slate-700 text-xs">
+          <span class="text-[10px] text-slate-400 font-semibold px-2">Perfil da TV:</span>
+          <button onclick="setHardwareProfile('tcl_oled_master')" id="btnProfileOled" class="tv-focusable px-2.5 py-1 rounded-xl bg-cyan-600/30 text-cyan-200 border border-cyan-400/50 font-bold text-[11px]" tabindex="0" title="TV TCL 55 OLED: 120Hz, Dolby Vision, ALLM e Pixel Shift 100% disponíveis">
+            🖥️ TCL OLED (Tudo Aceso)
+          </button>
+          <button onclick="setHardwareProfile('standard_60hz')" id="btnProfile60" class="tv-focusable px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:text-white" tabindex="0" title="TV Básica ou Stick 60Hz: 120Hz, Dolby Vision e Pixel Shift ficam apagados">
+            📺 TV 60Hz SDR (Opções Apagadas)
+          </button>
+          <button onclick="detectHardwareAuto()" id="btnProfileAuto" class="tv-focusable px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:text-white" tabindex="0" title="Detectar automaticamente taxa de quadros e capacidades via navegador">
+            🔄 Auto Detecção
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        
+        <!-- QUADRO 1: AJUSTES DA TV TCL 55" OLED -->
+        <div class="card-slate rounded-3xl p-5 border border-cyan-500/30 flex flex-col justify-between space-y-3.5 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-700/60 mb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-cyan-600/20 border border-cyan-400/30 flex items-center justify-center text-lg shadow">
+                  🖥️
+                </div>
+                <div>
+                  <h4 class="text-sm font-black text-white flex items-center gap-1.5">
+                    TV TCL 55" 4K OLED
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/30">PAINEL MASTER</span>
+                  </h4>
+                  <p class="text-[10px] text-slate-400">Tempo de resposta 0.1ms · 4K 120Hz · Dolby Vision IQ</p>
+                </div>
+              </div>
+              <span id="tclBadgeStatus" class="text-[10px] bg-emerald-950 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Calibrada
+              </span>
+            </div>
+
+            <!-- Ajuste 1: Modo de Imagem -->
+            <div class="space-y-1.5 mb-3">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-semibold flex items-center gap-1">🎨 Modo de Imagem:</span>
+                <span id="lblTclPictureMode" class="text-cyan-300 font-bold font-mono">Modo Jogo (ALLM)</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <button onclick="setTclPictureMode('Modo Jogo (ALLM)')" id="btnPicGame" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-cyan-600/30 text-cyan-200 border border-cyan-400/50 shadow" tabindex="0">
+                  🎮 Modo Jogo
+                </button>
+                <button onclick="setTclPictureMode('Dolby Vision Cinema')" id="btnPicCinema" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white" tabindex="0">
+                  🎬 Cinema Pro
+                </button>
+                <button onclick="setTclPictureMode('Vívido HDR')" id="btnPicVivid" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white" tabindex="0">
+                  ✨ Vívido HDR
+                </button>
+                <button onclick="setTclPictureMode('Padrão Calibrado')" id="btnPicStandard" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white" tabindex="0">
+                  ⚖️ Padrão
+                </button>
+              </div>
+            </div>
+
+            <!-- Ajuste 2: Taxa de Atualização & Luminância OLED -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+              <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/70 flex flex-col justify-between space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-300 font-bold flex items-center gap-1.5">
+                    Taxa de Atualização da TV:
+                    <span id="badge120Status" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold">120Hz Disponível</span>
+                  </span>
+                  <span id="lblTclRefresh" class="text-emerald-400 font-mono font-bold">120Hz VRR</span>
+                </div>
+                
+                <!-- Botões de Taxa: 120Hz Aceso se a TV tiver suporte; Apagado se não tiver -->
+                <div class="grid grid-cols-2 gap-2 text-xs" id="refreshButtonsContainer">
+                  <button onclick="setTclRefreshRate('120Hz VRR')" id="btnHz120" class="tv-focusable py-2 px-2 rounded-xl text-center font-bold bg-emerald-600/30 text-emerald-200 border border-emerald-500/50 shadow transition-all" tabindex="0">
+                    ⚡ 120Hz VRR
+                  </button>
+                  <button onclick="setTclRefreshRate('60Hz Fixo')" id="btnHz60" class="tv-focusable py-2 px-2 rounded-xl text-center font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition-all" tabindex="0">
+                    60Hz Fixo
+                  </button>
+                </div>
+
+                <div class="flex justify-between items-center pt-1.5 border-t border-slate-700/60 text-[10px]">
+                  <span id="dispRefreshDetail" class="text-slate-400">TV TCL 55 OLED: Painel 120Hz nativo liberado.</span>
+                  <button onclick="toggle120HzSupportSimulation()" id="btnToggle120Sim" class="tv-focusable text-cyan-300 hover:text-white font-bold bg-slate-700/70 px-2 py-1 rounded-lg border border-slate-600/50" tabindex="0" title="Simular televisor sem suporte a 120Hz para ver o botão apagado">
+                    🔄 Testar: Apagar / Acender 120Hz
+                  </button>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-2xl bg-slate-800/70 border border-slate-700/60">
+                <div class="flex justify-between items-center mb-1.5 text-xs">
+                  <span class="text-slate-300 font-semibold">Brilho do Painel OLED:</span>
+                  <span id="lblTclBrightness" class="text-amber-300 font-mono font-bold">100% Pico</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 text-[11px]">
+                  <button onclick="setTclOledBrightness('100% Pico')" id="btnOled100" class="tv-focusable py-1 rounded-lg bg-amber-600/30 text-amber-300 border border-amber-500/40 font-bold" tabindex="0">100%</button>
+                  <button onclick="setTclOledBrightness('80% Médio')" id="btnOled80" class="tv-focusable py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold" tabindex="0">80%</button>
+                  <button onclick="setTclOledBrightness('50% Noite')" id="btnOled50" class="tv-focusable py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold" tabindex="0">50%</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ajuste 3: Proteção OLED & Manutenção -->
+            <div class="p-2.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between gap-2 text-xs">
+              <div>
+                <span class="font-bold text-white flex items-center gap-1.5">🛡️ Proteção Anti Burn-In:</span>
+                <span class="text-[10px] text-slate-400">Pixel Shift & Redutor de Logo Estático</span>
+              </div>
+              <button onclick="toggleTclPixelShift()" id="btnTogglePixelShift" class="tv-focusable px-3 py-1.5 rounded-xl bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold" tabindex="0">
+                ✓ Ativado
+              </button>
+            </div>
+          </div>
+
+          <!-- Rodapé de Ações da TCL -->
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-700/60">
+            <button onclick="runTclPanelRefresh()" id="btnCalibrateOled" class="tv-focusable flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1 border border-slate-700" tabindex="0">
+              <span>✨</span> Calibrar Pixels OLED
+            </button>
+            <button onclick="turnOffScreenOnly()" class="tv-focusable px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-slate-700" tabindex="0" title="Desligar Tela / Somente Som">
+              🌙 Somente Áudio
+            </button>
+          </div>
+        </div>
+
+        <!-- QUADRO 2: AJUSTES E OTIMIZAÇÃO DO XIAOMI MI TV STICK -->
+        <div class="card-slate rounded-3xl p-5 border border-orange-500/30 flex flex-col justify-between space-y-3.5 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-700/60 mb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-orange-600/20 border border-orange-400/30 flex items-center justify-center text-lg shadow text-orange-400">
+                  📱
+                </div>
+                <div>
+                  <h4 class="text-sm font-black text-white flex items-center gap-1.5">
+                    Xiaomi Mi TV Stick
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 font-bold border border-orange-400/30">HDMI 2 (CEC)</span>
+                  </h4>
+                  <p class="text-[10px] text-slate-400">Android TV · 1GB RAM · Otimizador de Fluidez</p>
+                </div>
+              </div>
+              <span id="miStickStatus" class="text-[10px] bg-emerald-950 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Conectado
+              </span>
+            </div>
+
+            <!-- Ajuste 1: Resolução de Saída HDMI do Stick -->
+            <div class="space-y-1.5 mb-3">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-semibold flex items-center gap-1">📺 Resolução de Saída HDMI:</span>
+                <span id="lblMiResolution" class="text-orange-300 font-bold font-mono">1080p 60Hz (Recomendado)</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button onclick="setMiStickResolution('1080p 60Hz')" id="btnRes1080p60" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-orange-600/30 text-orange-200 border border-orange-400/50 shadow" tabindex="0">
+                  1080p 60Hz
+                </button>
+                <button onclick="setMiStickResolution('1080p 50Hz')" id="btnRes1080p50" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white" tabindex="0">
+                  1080p 50Hz
+                </button>
+                <button onclick="setMiStickResolution('Auto CEC Sync')" id="btnResAuto" class="tv-focusable py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white" tabindex="0">
+                  Auto CEC
+                </button>
+              </div>
+            </div>
+
+            <!-- Ajuste 2: Modo Desempenho & Controle HDMI-CEC -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+              <div class="p-2.5 rounded-2xl bg-slate-800/70 border border-slate-700/60">
+                <div class="flex justify-between items-center mb-1 text-xs">
+                  <span class="text-slate-300 font-semibold">Modo Mi Stick:</span>
+                  <span id="lblMiMode" class="text-emerald-400 font-mono font-bold">Turbo Boost</span>
+                </div>
+                <button onclick="toggleMiStickPerformance()" id="btnMiPerf" class="tv-focusable w-full py-1.5 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold" tabindex="0">
+                  ⚡ Alta Performance
+                </button>
+              </div>
+
+              <div class="p-2.5 rounded-2xl bg-slate-800/70 border border-slate-700/60">
+                <div class="flex justify-between items-center mb-1 text-xs">
+                  <span class="text-slate-300 font-semibold">Sincronia HDMI-CEC:</span>
+                  <span id="lblMiCec" class="text-blue-300 font-mono font-bold">Ativa</span>
+                </div>
+                <button onclick="toggleMiStickCec()" id="btnMiCec" class="tv-focusable w-full py-1.5 rounded-lg bg-blue-600/30 text-blue-300 border border-blue-500/40 text-[11px] font-bold" tabindex="0">
+                  🔗 Ligar junto com TV
+                </button>
+              </div>
+            </div>
+
+            <!-- Ajuste 3: Status de Cache e Memória do Mi Stick -->
+            <div class="p-2.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between gap-2 text-xs">
+              <div>
+                <span class="font-bold text-white flex items-center gap-1.5">🧹 Memória Cache do Stick:</span>
+                <span id="lblMiCache" class="text-[10px] text-orange-300 font-mono">140 MB de cache acumulado</span>
+              </div>
+              <button onclick="cleanMiStickCache()" class="tv-focusable px-3 py-1.5 rounded-xl bg-orange-600/30 text-orange-300 border border-orange-500/40 text-[11px] font-bold hover:bg-orange-600 hover:text-white" tabindex="0">
+                Limpar Cache
+              </button>
+            </div>
+          </div>
+
+          <!-- Rodapé de Ações do Mi Stick -->
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-700/60">
+            <button onclick="cleanMiStickCache()" class="tv-focusable flex-1 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow" tabindex="0">
+              <span>🚀</span> Desengasgar Mi Stick (Acelerar)
+            </button>
+            <button onclick="rebootMiStick()" class="tv-focusable px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-red-300 font-bold text-xs border border-slate-700" tabindex="0" title="Reiniciar Mi Stick">
+              🔄 Reiniciar Stick
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== MODALS & DRAWERS ==================== -->
+
+  <!-- MODAL: OPÇÕES DO DIA A DIA (DRAWER COMPLETO) -->
+  <div id="modalDailyOptions" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="surface-slate border border-blue-500/40 rounded-3xl p-6 md:p-7 max-w-xl w-full shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700/70 mb-4">
+        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+          <span>⚙️</span> Opções Úteis do Dia a Dia
+        </h3>
+        <button onclick="closeDailyOptionsModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+
+      <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+        
+        <!-- Bloco 1: Controle de Som & Home Theater LG -->
+        <div class="card-slate p-3.5 rounded-2xl border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-white flex items-center gap-1.5">🔊 Áudio e Home Theater LG (Bluetooth)</span>
+            <span id="drawerAudioStatus" class="text-[10px] text-pink-300 font-bold bg-pink-500/20 px-2 py-0.5 rounded-full">Conectado</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+            <button onclick="setAudioOutput('Home Theater LG (Bluetooth)')" class="tv-focusable lg-focus p-2 rounded-xl bg-pink-600/30 border border-pink-500/40 text-pink-200 font-bold text-left" tabindex="0">
+              ✓ Home Theater LG (Sem Fio)
+            </button>
+            <button onclick="setAudioOutput('Alto-falantes da TV TCL')" class="tv-focusable p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-bold text-left" tabindex="0">
+              Alto-falantes TV TCL
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1 text-xs">
+            <button onclick="toggleLgSoundPower()" id="drawerBtnSoundToggle" class="tv-focusable flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700" tabindex="0">
+              🔇 Mutar / Desligar Som
+            </button>
+            <button onclick="setSoundMode('Cinema Surround')" class="tv-focusable px-3 py-2 rounded-xl bg-slate-800 text-cyan-300 font-bold border border-slate-700" tabindex="0">
+              Modo Cinema
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloco 2: Desligamento & Sleep Timer -->
+        <div class="card-slate p-3.5 rounded-2xl border border-slate-700">
+          <div class="text-xs font-bold text-white mb-2 flex items-center gap-1.5">
+            <span>⏱️</span> Desligamento e Modo Repouso da TV
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs mb-2">
+            <button onclick="setSleepTimer(15)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">15 min</button>
+            <button onclick="setSleepTimer(30)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">30 min</button>
+            <button onclick="setSleepTimer(45)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">45 min</button>
+            <button onclick="setSleepTimer(60)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">60 min</button>
+            <button onclick="setSleepTimer(90)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">90 min</button>
+            <button onclick="setSleepTimer(120)" class="tv-focusable p-2 rounded-xl bg-slate-800 text-white font-bold" tabindex="0">2h</button>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="turnOffScreenOnly()" class="tv-focusable flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700" tabindex="0">
+              🌙 Desligar Somente a Tela (Ouvir Música)
+            </button>
+            <button onclick="confirmTurnOffTv()" class="tv-focusable px-4 py-2 rounded-xl bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-bold" tabindex="0">
+              ⏻ Desligar TV
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloco 3: Cuidados com a Tela OLED (TCL 55) -->
+        <div class="card-slate p-3.5 rounded-2xl border border-slate-700">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-white flex items-center gap-1.5">🛡️ Proteção OLED TCL (Prevenção Burn-In)</span>
+            <span class="text-[10px] text-emerald-400 font-bold">Pixel Shift Ativo</span>
+          </div>
+          <p class="text-[11px] text-slate-300 mb-2">
+            Move sutilmente os pixels estáticos para prolongar a vida útil do seu painel OLED de 55 polegadas.
+          </p>
+          <button onclick="runPixelRefresh()" class="tv-focusable w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700 flex items-center justify-center gap-1.5" tabindex="0">
+            <span>✨</span> Iniciar Limpeza Rápida de Pixels
+          </button>
+        </div>
+
+        <!-- Bloco 4: Atalhos para Outras Opções -->
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="closeDailyOptionsModal(); openEditAppsModal();" class="tv-focusable py-2.5 rounded-2xl bg-blue-600/30 border border-blue-500/40 text-blue-200 hover:bg-blue-600 hover:text-white text-xs font-extrabold flex items-center justify-center gap-1" tabindex="0">
+            <span>📱</span> Personalizar Apps
+          </button>
+          <button onclick="closeDailyOptionsModal(); openAboutModal();" class="tv-focusable py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-white text-xs font-extrabold flex items-center justify-center gap-1" tabindex="0">
+            <span>👑</span> Sobre o Criador
+          </button>
+        </div>
+
+      </div>
+
+      <div class="pt-4 border-t border-slate-700/70 mt-3 text-right">
+        <button onclick="closeDailyOptionsModal()" class="tv-focusable px-6 py-2 rounded-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold" tabindex="0">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LOCALIDADE DA METEOROLOGIA (DESTAQUE OURINHOS SP) -->
+  <div id="modalLocation" class="fixed inset-0 z-50 bg-black/95 hidden flex items-center justify-center p-4">
+    <div class="surface-slate border border-blue-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span>📍</span> Alterar Localidade do Clima
+        </h3>
+        <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs mb-4">
+        <button onclick="setCity('Ourinhos, SP', 28, 'Ensolarado', '☀️', 30, 60, 12, '6 (Moderado)', '18° / 31°')" class="tv-focusable p-2.5 rounded-2xl bg-blue-600/40 border border-blue-400/50 font-bold text-white text-center" tabindex="0">
+          📍 Ourinhos, SP
+        </button>
+        <button onclick="setCity('Ourinhos, SP', 28, 'Ensolarado', '☀️', 30, 60, 12, '6 (Moderado)', '18° / 31°')" class="tv-focusable p-2.5 rounded-2xl bg-slate-800 border border-slate-700 font-bold text-white text-center" tabindex="0">
+          Ourinhos, SP
+        </button>
+        <button onclick="setCity('Londrina, PR', 26, 'Parcialmente Nublado', '⛅', 27, 65, 14, '5 (Moderado)', '17° / 29°')" class="tv-focusable p-2.5 rounded-2xl bg-slate-800 border border-slate-700 font-bold text-white text-center" tabindex="0">
+          Londrina, PR
+        </button>
+        <button onclick="setCity('Curitiba, PR', 21, 'Frio / Nublado', '☁️', 20, 75, 14, '4 (Baixo)', '13° / 22°')" class="tv-focusable p-2.5 rounded-2xl bg-slate-800 border border-slate-700 font-bold text-white text-center" tabindex="0">
+          Curitiba, PR
+        </button>
+        <button onclick="setCity('Maringá, PR', 27, 'Ensolarado', '🌤️', 28, 58, 11, '6 (Moderado)', '18° / 30°')" class="tv-focusable p-2.5 rounded-2xl bg-slate-800 border border-slate-700 font-bold text-white text-center" tabindex="0">
+          Maringá, PR
+        </button>
+        <button onclick="setCity('São Paulo, SP', 24, 'Nublado', '⛅', 25, 68, 15, '5 (Moderado)', '16° / 26°')" class="tv-focusable p-2.5 rounded-2xl bg-slate-800 border border-slate-700 font-bold text-white text-center" tabindex="0">
+          São Paulo, SP
+        </button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700 mb-4 flex gap-2">
+        <input id="customCityInput" type="text" placeholder="Digitar outra cidade do Brasil..." class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+        <button onclick="applyCustomCity()" class="tv-focusable px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs" tabindex="0">Salvar</button>
+      </div>
+
+      <button onclick="closeLocationModal()" class="tv-focusable w-full py-2 rounded-full bg-slate-800 text-slate-300 font-semibold text-xs" tabindex="0">
+        Fechar
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: SOBRE (LEANDRO CORRÊA) -->
+  <div id="modalAbout" class="fixed inset-0 z-50 bg-black/95 hidden flex items-center justify-center p-4">
+    <div class="surface-slate border border-blue-500/40 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl text-center relative">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-700 p-0.5 shadow-xl mb-3 flex items-center justify-center text-3xl">
+        👑
+      </div>
+      <h2 class="text-2xl font-black text-white">Leandro Corrêa</h2>
+      <p class="text-xs text-blue-300 font-semibold">Leandro TV Launcher - Corrêa Vision Pro Edition</p>
+
+      <div class="my-4 rounded-2xl bg-slate-800/80 border border-slate-700 divide-y divide-slate-700 text-left text-xs">
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Desenvolvido por:</span> <span class="text-white font-bold">Leandro Corrêa</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Edição Oficial:</span> <span class="text-blue-300 font-bold">Corrêa Vision Pro (OLED Custom)</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">TV / Painel:</span> <span class="text-cyan-300 font-bold">TCL 55" 4K OLED (120Hz VRR)</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Som Sem Fio:</span> <span class="text-pink-300 font-bold">Home Theater LG (Bluetooth)</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Console de Jogos:</span> <span class="text-emerald-400 font-bold">Xbox Series S (HDMI 1 - ALLM)</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Streaming Principal:</span> <span class="text-red-400 font-bold">YouTube 4K, SmartTube & Filmes</span></div>
+        <div class="flex justify-between p-2.5"><span class="text-slate-400">Versão:</span> <span class="text-white mono">v6.5.0 Corrêa Vision Pro OLED</span></div>
+      </div>
+
+      <button id="btnCloseAbout" onclick="closeAboutModal()" class="tv-focusable px-8 py-2 rounded-full bg-blue-500 text-white font-extrabold text-xs shadow-lg" tabindex="0">
+        Concluído
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: GERENCIADOR DE FAVORITOS -->
+  <div id="modalEditApps" class="fixed inset-0 z-50 bg-black/95 hidden flex items-center justify-center p-4">
+    <div class="surface-slate border border-slate-700 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2"><span>📱</span> Personalizar Apps de Filmes & Séries</h3>
+        <button onclick="closeEditAppsModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="overflow-y-auto space-y-4 pr-1 flex-1">
+        <div><div class="text-xs font-bold text-slate-300 uppercase mb-2">Ordem Atual de Exibição:</div><div id="editFavoritesList" class="space-y-1.5"></div></div>
+        <div><div class="text-xs font-bold text-slate-300 uppercase mb-2">Adicionar com 1 Toque:</div><div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div></div>
+        <div class="p-3 rounded-2xl bg-slate-800 border border-slate-700">
+          <div class="text-xs font-bold text-slate-200 mb-2">Adicionar Aplicativo Manual:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <input id="customAppName" type="text" placeholder="Nome do App" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white">
+            <input id="customAppUrl" type="text" placeholder="URL ou Pacote" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white">
+            <button onclick="addCustomApp()" class="tv-focusable py-1.5 rounded-lg bg-blue-600 text-white font-bold" tabindex="0">+ Adicionar</button>
+          </div>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-700 flex items-center justify-between gap-2 mt-2">
+        <button onclick="restoreDefaultApps()" class="tv-focusable px-4 py-2 rounded-full bg-red-600/30 text-red-300 text-xs font-bold" tabindex="0">Restaurar Padrão</button>
+        <button onclick="closeEditAppsModal()" class="tv-focusable px-6 py-2 rounded-full bg-blue-500 text-white font-extrabold text-xs" tabindex="0">✓ Concluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-transform duration-200 pointer-events-none">
+    <div class="surface-slate border border-blue-400/50 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs">
+      <span id="toastIcon" class="text-lg">🎮</span>
+      <div>
+        <div id="toastTitle" class="font-bold text-white">Notificação</div>
+        <div id="toastMsg" class="text-slate-300 text-[11px]">Operação realizada</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    
+    // ==================== CONTROLES DA TV & MOTOR DE CAPACIDADES DINÂMICAS ====================
+    // Perfis e capacidades de hardware da TV
+    let tvHardwareCapabilities = {
+      profile: 'tcl_oled_master', // 'tcl_oled_master', 'standard_60hz', 'auto'
+      has120Hz: true,             // Taxa 120Hz VRR
+      hasDolbyVision: true,       // HDR / Dolby Vision IQ
+      hasAllmGameMode: true,      // Modo Jogo de baixa latência ALLM
+      hasOledPanel: true,         // Painel OLED (Pixel Shift e pico de brilho 100%)
+      hasLgBluetooth: true,       // Home Theater LG sem fio
+      hasHdmiCec: true            // Controle HDMI-CEC
+    };
+
+    let tclSettings = {
+      pictureMode: 'Modo Jogo (ALLM)',
+      refreshRate: '120Hz VRR',
+      brightness: '100% Pico',
+      pixelShift: true
+    };
+
+    let miStickSettings = {
+      resolution: '1080p 60Hz',
+      performance: true,
+      cec: true,
+      cacheCleaned: false
+    };
+
+    function loadSavedDeviceSettings() {
+      try {
+        const savedProfile = localStorage.getItem('leandro_tv_hw_profile');
+        if (savedProfile) {
+          applyProfileData(savedProfile);
+        }
+        const savedTcl = localStorage.getItem('leandro_tcl_settings');
+        if (savedTcl) tclSettings = { ...tclSettings, ...JSON.parse(savedTcl) };
+        const savedMi = localStorage.getItem('leandro_mistick_settings');
+        if (savedMi) miStickSettings = { ...miStickSettings, ...JSON.parse(savedMi) };
+      } catch (e) {}
+      applyDeviceSettingsToUI();
+    }
+
+    function setHardwareProfile(profileName) {
+      applyProfileData(profileName);
+      try { localStorage.setItem('leandro_tv_hw_profile', profileName); } catch(e) {}
+      applyDeviceSettingsToUI();
+      playFocusSound();
+
+      if (profileName === 'tcl_oled_master') {
+        showToast('Perfil TCL 55 OLED Ativo', 'Todos os recursos suportados (120Hz, Dolby Vision, ALLM, Pixel Shift) ACESOS!', '🖥️');
+      } else if (profileName === 'standard_60hz') {
+        showToast('Perfil TV 60Hz SDR Ativo', 'Recursos não suportados (120Hz, Dolby Vision, Pixel Shift) foram APAGADOS!', '🔒');
+      } else {
+        showToast('Auto Detecção Ativa', 'Avaliando taxa de atualização e suporte HDR da TV em tempo real...', '🔄');
+      }
+    }
+
+    function applyProfileData(profileName) {
+      tvHardwareCapabilities.profile = profileName;
+      if (profileName === 'tcl_oled_master') {
+        tvHardwareCapabilities.has120Hz = true;
+        tvHardwareCapabilities.hasDolbyVision = true;
+        tvHardwareCapabilities.hasAllmGameMode = true;
+        tvHardwareCapabilities.hasOledPanel = true;
+        tvHardwareCapabilities.hasLgBluetooth = true;
+        tvHardwareCapabilities.hasHdmiCec = true;
+      } else if (profileName === 'standard_60hz') {
+        // Simulação de TV básica ou Mi Stick 60Hz SDR
+        tvHardwareCapabilities.has120Hz = false;
+        tvHardwareCapabilities.hasDolbyVision = false;
+        tvHardwareCapabilities.hasAllmGameMode = false;
+        tvHardwareCapabilities.hasOledPanel = false;
+        tvHardwareCapabilities.hasLgBluetooth = true;
+        tvHardwareCapabilities.hasHdmiCec = true;
+
+        // Auto fallback de configurações caso estejam em modos indisponíveis
+        if (tclSettings.refreshRate === '120Hz VRR') tclSettings.refreshRate = '60Hz Fixo';
+        if (tclSettings.pictureMode === 'Modo Jogo (ALLM)' || tclSettings.pictureMode === 'Dolby Vision Cinema' || tclSettings.pictureMode === 'Vívido HDR') {
+          tclSettings.pictureMode = 'Padrão Calibrado';
+        }
+        if (tclSettings.brightness === '100% Pico') tclSettings.brightness = '80% Médio';
+      }
+    }
+
+    
+    function detectDisplayRefreshRate() {
+      detectHardwareAuto();
+    }
+
+    function detectHardwareAuto() {
+      setHardwareProfile('auto');
+      let frames = 0;
+      let startTime = null;
+
+      function checkDisplay(time) {
+        if (!startTime) startTime = time;
+        frames++;
+        if (frames < 30) {
+          requestAnimationFrame(checkDisplay);
+        } else {
+          const elapsed = time - startTime;
+          const fps = Math.round((frames * 1000) / elapsed);
+          const hasHighHz = fps > 85;
+          const hasHdr = window.matchMedia && window.matchMedia('(dynamic-range: high)').matches;
+
+          tvHardwareCapabilities.has120Hz = hasHighHz;
+          tvHardwareCapabilities.hasDolbyVision = hasHdr || hasHighHz;
+          tvHardwareCapabilities.hasAllmGameMode = true;
+          tvHardwareCapabilities.hasOledPanel = true; // Mantém modo TCL OLED por padrão
+
+          if (!hasHighHz && tclSettings.refreshRate === '120Hz VRR') {
+            tclSettings.refreshRate = '60Hz Fixo';
+          }
+
+          applyDeviceSettingsToUI();
+          showToast('Auto Detecção Concluída', `Tela medida em ~${fps}Hz. ${hasHighHz ? '120Hz Habilitado!' : '120Hz Apagado (60Hz fixo)'}`, '✅');
+        }
+      }
+      requestAnimationFrame(checkDisplay);
+    }
+
+    // Função auxiliar: Ativa ou Apaga um botão de opção da TV
+    function configureTvOptionButton(btn, isAvailable, isSelected, activeHtml, disabledHtml, activeStyle, selectedStyle) {
+      if (!btn) return;
+
+      if (!isAvailable) {
+        // DEIXA APAGADO (Desabilitado, sem foco D-Pad, opacidade baixa e riscado)
+        btn.disabled = true;
+        btn.tabIndex = -1;
+        btn.classList.remove('tv-focusable');
+        btn.className = 'tv-option-disabled py-2 px-2 rounded-xl text-xs font-bold text-center';
+        btn.innerHTML = disabledHtml;
+        btn.title = 'Opção indisponível neste televisor ou dispositivo.';
+      } else {
+        // DEIXA ACESO (Habilitado, navegável por D-Pad, selecionável com foco luminoso)
+        btn.disabled = false;
+        btn.tabIndex = 0;
+        btn.classList.remove('tv-option-disabled');
+        if (!btn.classList.contains('tv-focusable')) {
+          btn.classList.add('tv-focusable');
+        }
+        btn.innerHTML = activeHtml;
+        btn.title = 'Opção disponível na sua TV TCL.';
+
+        if (isSelected) {
+          btn.className = 'tv-focusable ' + selectedStyle;
+        } else {
+          btn.className = 'tv-focusable ' + activeStyle;
+        }
+      }
+    }
+
+    function applyDeviceSettingsToUI() {
+      // 1. Atualizar Badges de Perfil de Hardware
+      const badgeHw = document.getElementById('hardwareModeBadge');
+      const bProfileOled = document.getElementById('btnProfileOled');
+      const bProfile60 = document.getElementById('btnProfile60');
+      const bProfileAuto = document.getElementById('btnProfileAuto');
+
+      if (bProfileOled && bProfile60 && bProfileAuto) {
+        bProfileOled.className = tvHardwareCapabilities.profile === 'tcl_oled_master' ? 'tv-focusable px-2.5 py-1 rounded-xl bg-cyan-600/30 text-cyan-200 border border-cyan-400/50 font-bold text-[11px] shadow' : 'tv-focusable px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:text-white';
+        bProfile60.className = tvHardwareCapabilities.profile === 'standard_60hz' ? 'tv-focusable px-2.5 py-1 rounded-xl bg-red-600/30 text-red-200 border border-red-400/50 font-bold text-[11px] shadow' : 'tv-focusable px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:text-white';
+        bProfileAuto.className = tvHardwareCapabilities.profile === 'auto' ? 'tv-focusable px-2.5 py-1 rounded-xl bg-emerald-600/30 text-emerald-200 border border-emerald-400/50 font-bold text-[11px] shadow' : 'tv-focusable px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[11px] hover:text-white';
+      }
+
+      if (badgeHw) {
+        if (tvHardwareCapabilities.profile === 'tcl_oled_master') {
+          badgeHw.textContent = 'TCL 55 OLED: Todos Recursos Disponíveis';
+          badgeHw.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 font-mono';
+        } else if (tvHardwareCapabilities.profile === 'standard_60hz') {
+          badgeHw.textContent = 'Display 60Hz SDR: Recursos Incompatíveis Apagados';
+          badgeHw.className = 'text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 font-bold border border-red-500/40 font-mono';
+        } else {
+          badgeHw.textContent = `Auto Detecção (${tvHardwareCapabilities.has120Hz ? '120Hz Habilitado' : '60Hz Mínimo'})`;
+          badgeHw.className = 'text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/40 font-mono';
+        }
+      }
+
+      // 2. MODOS DE IMAGEM DA TV (Aceso se compatível; Apagado se incompatível)
+      const lblPic = document.getElementById('lblTclPictureMode');
+      if (lblPic) lblPic.textContent = tclSettings.pictureMode;
+
+      // Modo Jogo (ALLM): Disponível se hasAllmGameMode for true
+      configureTvOptionButton(
+        document.getElementById('btnPicGame'),
+        tvHardwareCapabilities.hasAllmGameMode,
+        tclSettings.pictureMode === 'Modo Jogo (ALLM)',
+        '🎮 Modo Jogo',
+        '🚫 Modo Jogo (Sem ALLM)',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-cyan-600/30 text-cyan-200 border border-cyan-400/50 shadow'
+      );
+
+      // Dolby Vision Cinema: Disponível se hasDolbyVision for true
+      configureTvOptionButton(
+        document.getElementById('btnPicCinema'),
+        tvHardwareCapabilities.hasDolbyVision,
+        tclSettings.pictureMode === 'Dolby Vision Cinema',
+        '🎬 Cinema Pro',
+        '🚫 Dolby Vision (SDR)',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-purple-600/30 text-purple-200 border border-purple-400/50 shadow'
+      );
+
+      // Vívido HDR: Disponível se hasDolbyVision (HDR) for true
+      configureTvOptionButton(
+        document.getElementById('btnPicVivid'),
+        tvHardwareCapabilities.hasDolbyVision,
+        tclSettings.pictureMode === 'Vívido HDR',
+        '✨ Vívido HDR',
+        '🚫 HDR Indisponível',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-amber-600/30 text-amber-200 border border-amber-400/50 shadow'
+      );
+
+      // Padrão Calibrado: Sempre suportado em qualquer display
+      configureTvOptionButton(
+        document.getElementById('btnPicStandard'),
+        true,
+        tclSettings.pictureMode === 'Padrão Calibrado',
+        '⚖️ Padrão',
+        'Padrão',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-blue-600/30 text-blue-200 border border-blue-400/50 shadow'
+      );
+
+      // 3. TAXA DE ATUALIZAÇÃO DO PAINEL (120Hz vs 60Hz)
+      const lblHz = document.getElementById('lblTclRefresh');
+      const badge120 = document.getElementById('badge120Status');
+      const detail120 = document.getElementById('dispRefreshDetail');
+      const b120 = document.getElementById('btnHz120');
+      const b60 = document.getElementById('btnHz60');
+
+      if (!tvHardwareCapabilities.has120Hz) {
+        // Se a TV NÃO TIVER 120Hz: Deixa o botão 120Hz COMPLETAMENTE APAGADO
+        if (lblHz) { lblHz.textContent = '60Hz Fixo (Max)'; lblHz.className = 'text-slate-400 font-mono font-bold'; }
+        if (badge120) { 
+          badge120.textContent = '120Hz Indisponível nesta TV'; 
+          badge120.className = 'text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 font-mono font-bold'; 
+        }
+        if (detail120) detail120.textContent = 'Este televisor suporta até 60Hz. A opção 120Hz está apagada.';
+
+        // Desativa completamente o botão 120Hz e remove do D-Pad
+        if (b120) {
+          b120.disabled = true;
+          b120.tabIndex = -1;
+          b120.classList.remove('tv-focusable');
+          b120.className = 'tv-option-disabled py-2 px-2 rounded-xl text-xs font-bold text-center opacity-25 bg-slate-900/90 text-slate-500 border border-slate-800 line-through cursor-not-allowed pointer-events-none';
+          b120.innerHTML = '🚫 120Hz (Apagado / Não Suportado)';
+          b120.title = 'A taxa de 120Hz não está disponível neste televisor.';
+        }
+
+        configureTvOptionButton(
+          b60,
+          true,
+          true,
+          '✓ 60Hz Ativo',
+          '60Hz',
+          '',
+          'py-1 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold shadow'
+        );
+      } else {
+        // Se a TV tiver 120Hz: 120Hz FICA ACESO E SELECIONÁVEL
+        if (badge120) { badge120.textContent = '120Hz Disp.'; badge120.className = 'text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold border border-emerald-500/30'; }
+        if (detail120) detail120.textContent = 'Painel 120Hz VRR ativo na TCL';
+
+        configureTvOptionButton(
+          b120,
+          true,
+          tclSettings.refreshRate === '120Hz VRR',
+          '⚡ 120Hz VRR',
+          '🚫 120Hz',
+          'py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-bold hover:text-white',
+          'py-1 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold shadow'
+        );
+
+        configureTvOptionButton(
+          b60,
+          true,
+          tclSettings.refreshRate === '60Hz Fixo',
+          '60Hz Fixo',
+          '60Hz',
+          'py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold hover:text-white',
+          'py-1 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold shadow'
+        );
+
+        if (lblHz) {
+          lblHz.textContent = tclSettings.refreshRate;
+          lblHz.className = tclSettings.refreshRate === '120Hz VRR' ? 'text-emerald-400 font-mono font-bold' : 'text-slate-300 font-mono font-bold';
+        }
+      }
+
+      // 4. LUMINÂNCIA OLED (100% Pico OLED só disponível se for painel OLED)
+      const lblBr = document.getElementById('lblTclBrightness');
+      if (lblBr) lblBr.textContent = tclSettings.brightness;
+
+      configureTvOptionButton(
+        document.getElementById('btnOled100'),
+        tvHardwareCapabilities.hasOledPanel,
+        tclSettings.brightness === '100% Pico',
+        '100%',
+        '🚫 100% OLED',
+        'py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold',
+        'py-1 rounded-lg bg-amber-600/30 text-amber-300 border border-amber-500/40 font-bold shadow'
+      );
+      configureTvOptionButton(
+        document.getElementById('btnOled80'),
+        true,
+        tclSettings.brightness === '80% Médio',
+        '80%',
+        '80%',
+        'py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold',
+        'py-1 rounded-lg bg-amber-600/30 text-amber-300 border border-amber-500/40 font-bold shadow'
+      );
+      configureTvOptionButton(
+        document.getElementById('btnOled50'),
+        true,
+        tclSettings.brightness === '50% Noite',
+        '50%',
+        '50%',
+        'py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-bold',
+        'py-1 rounded-lg bg-amber-600/30 text-amber-300 border border-amber-500/40 font-bold shadow'
+      );
+
+      // 5. CUIDADOS OLED (Pixel Shift e Calibração apagados se não for tela OLED)
+      const btnPs = document.getElementById('btnTogglePixelShift');
+      const btnCalOled = document.getElementById('btnCalibrateOled');
+
+      if (!tvHardwareCapabilities.hasOledPanel) {
+        if (btnPs) {
+          btnPs.disabled = true;
+          btnPs.tabIndex = -1;
+          btnPs.className = 'tv-option-disabled px-3 py-1.5 rounded-xl text-[11px] font-bold';
+          btnPs.innerHTML = '🚫 Indisponível (Não OLED)';
+        }
+        if (btnCalOled) {
+          btnCalOled.disabled = true;
+          btnCalOled.tabIndex = -1;
+          btnCalOled.className = 'tv-option-disabled flex-1 py-2 rounded-xl text-xs font-bold text-center';
+          btnCalOled.innerHTML = '🔒 Calibração Apenas em Telas OLED';
+        }
+      } else {
+        if (btnPs) {
+          btnPs.disabled = false;
+          btnPs.tabIndex = 0;
+          if (!btnPs.classList.contains('tv-focusable')) btnPs.classList.add('tv-focusable');
+          btnPs.className = tclSettings.pixelShift ? 'tv-focusable px-3 py-1.5 rounded-xl bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold shadow' : 'tv-focusable px-3 py-1.5 rounded-xl bg-red-600/30 text-red-300 border border-red-500/40 text-[11px] font-bold';
+          btnPs.innerHTML = tclSettings.pixelShift ? '✓ Ativado' : '✕ Desativado';
+        }
+        if (btnCalOled) {
+          btnCalOled.disabled = false;
+          btnCalOled.tabIndex = 0;
+          if (!btnCalOled.classList.contains('tv-focusable')) btnCalOled.classList.add('tv-focusable');
+          btnCalOled.className = 'tv-focusable flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1 border border-slate-700';
+          btnCalOled.innerHTML = '<span>✨</span> Calibrar Pixels OLED';
+        }
+      }
+
+      // 6. AJUSTES DO XIAOMI MI STICK (HDMI-CEC e Resolução)
+      const lblRes = document.getElementById('lblMiResolution');
+      if (lblRes) lblRes.textContent = miStickSettings.resolution;
+
+      configureTvOptionButton(
+        document.getElementById('btnRes1080p60'),
+        true,
+        miStickSettings.resolution === '1080p 60Hz',
+        '1080p 60Hz',
+        '1080p 60Hz',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-orange-600/30 text-orange-200 border border-orange-400/50 shadow'
+      );
+      configureTvOptionButton(
+        document.getElementById('btnRes1080p50'),
+        true,
+        miStickSettings.resolution === '1080p 50Hz',
+        '1080p 50Hz',
+        '1080p 50Hz',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-orange-600/30 text-orange-200 border border-orange-400/50 shadow'
+      );
+      configureTvOptionButton(
+        document.getElementById('btnResAuto'),
+        tvHardwareCapabilities.hasHdmiCec,
+        miStickSettings.resolution === 'Auto CEC Sync',
+        'Auto CEC',
+        '🚫 Sem CEC',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-slate-800 text-slate-300 border border-slate-700 hover:text-white',
+        'py-2 px-2 rounded-xl text-xs font-bold text-center bg-orange-600/30 text-orange-200 border border-orange-400/50 shadow'
+      );
+
+      // Sincronia HDMI-CEC
+      const btnCec = document.getElementById('btnMiCec');
+      const lblCec = document.getElementById('lblMiCec');
+      if (btnCec && lblCec) {
+        if (!tvHardwareCapabilities.hasHdmiCec) {
+          btnCec.disabled = true;
+          btnCec.tabIndex = -1;
+          btnCec.className = 'tv-option-disabled w-full py-1.5 rounded-lg text-[11px] font-bold';
+          btnCec.innerHTML = '🚫 HDMI-CEC Indisponível';
+          lblCec.textContent = 'Incompatível';
+        } else {
+          btnCec.disabled = false;
+          btnCec.tabIndex = 0;
+          if (!btnCec.classList.contains('tv-focusable')) btnCec.classList.add('tv-focusable');
+          if (miStickSettings.cec) {
+            lblCec.textContent = 'Ativa';
+            btnCec.textContent = '🔗 Ligar junto com TV';
+            btnCec.className = 'tv-focusable w-full py-1.5 rounded-lg bg-blue-600/30 text-blue-300 border border-blue-500/40 text-[11px] font-bold shadow';
+          } else {
+            lblCec.textContent = 'Inativa';
+            btnCec.textContent = '⚪ CEC Desativado';
+            btnCec.className = 'tv-focusable w-full py-1.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-[11px] font-bold';
+          }
+        }
+      }
+    }
+
+    // --- FUNÇÕES DE CONTROLE DA TCL OLED ---
+    function setTclPictureMode(mode) {
+      if (mode === 'Modo Jogo (ALLM)' && !tvHardwareCapabilities.hasAllmGameMode) {
+        showToast('Opção Indisponível', 'A TV não suporta Modo Jogo ALLM neste display.', '🚫');
+        return;
+      }
+      if ((mode === 'Dolby Vision Cinema' || mode === 'Vívido HDR') && !tvHardwareCapabilities.hasDolbyVision) {
+        showToast('Opção Indisponível', 'Dolby Vision / HDR indisponível no display conectado.', '🚫');
+        return;
+      }
+      tclSettings.pictureMode = mode;
+      try { localStorage.setItem('leandro_tcl_settings', JSON.stringify(tclSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('TCL 55 OLED', `Modo de Imagem: ${mode}`, '🖥️');
+    }
+
+    function setTclRefreshRate(rate) {
+      if (rate === '120Hz VRR' && !tvHardwareCapabilities.has120Hz) {
+        showToast('120Hz Indisponível', 'Este televisor suporta no máximo 60Hz. O botão está apagado.', '🚫');
+        return;
+      }
+      tclSettings.refreshRate = rate;
+      try { localStorage.setItem('leandro_tcl_settings', JSON.stringify(tclSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('TCL 55 OLED', `Taxa de Atualização: ${rate}`, '⚡');
+    }
+
+    function setTclOledBrightness(lvl) {
+      if (lvl === '100% Pico' && !tvHardwareCapabilities.hasOledPanel) {
+        showToast('Opção Indisponível', 'Pico de 100% de luminância requer tela OLED.', '🚫');
+        return;
+      }
+      tclSettings.brightness = lvl;
+      try { localStorage.setItem('leandro_tcl_settings', JSON.stringify(tclSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('TCL 55 OLED', `Luminância: ${lvl}`, '☀️');
+    }
+
+    function toggleTclPixelShift() {
+      if (!tvHardwareCapabilities.hasOledPanel) {
+        showToast('Opção Indisponível', 'Pixel Shift é exclusivo para preservação de painéis OLED.', '🚫');
+        return;
+      }
+      tclSettings.pixelShift = !tclSettings.pixelShift;
+      try { localStorage.setItem('leandro_tcl_settings', JSON.stringify(tclSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('OLED Care', tclSettings.pixelShift ? 'Pixel Shift Ativado!' : 'Pixel Shift Desativado.', '🛡️');
+    }
+
+    function runTclPanelRefresh() {
+      if (!tvHardwareCapabilities.hasOledPanel) {
+        showToast('Opção Indisponível', 'Calibração de pixels disponível somente em painéis OLED.', '🚫');
+        return;
+      }
+      showToast('OLED Care TCL', 'Iniciando ciclo automático de calibração de pixels estáticos.', '✨');
+    }
+
+        function toggle120HzSupportSimulation() {
+      tvHardwareCapabilities.has120Hz = !tvHardwareCapabilities.has120Hz;
+      const btnSim = document.getElementById('btnToggle120Sim');
+
+      if (!tvHardwareCapabilities.has120Hz) {
+        tclSettings.refreshRate = '60Hz Fixo';
+        if (btnSim) btnSim.textContent = '⚡ Simular: Acender 120Hz';
+        showToast('Simulação: TV 60Hz', 'A TV NÃO possui 120Hz: o botão foi apagado e desativado.', '🔒');
+      } else {
+        if (btnSim) btnSim.textContent = '🔒 Simular: Apagar 120Hz';
+        showToast('Simulação: TV 120Hz', 'A TV POSSUI 120Hz: o botão apareceu aceso e pronto para selecionar!', '⚡');
+      }
+      applyDeviceSettingsToUI();
+      playFocusSound();
+    }
+
+    // --- FUNÇÕES DO XIAOMI MI STICK ---
+    function setMiStickResolution(res) {
+      if (res === 'Auto CEC Sync' && !tvHardwareCapabilities.hasHdmiCec) {
+        showToast('Opção Indisponível', 'HDMI-CEC não detectado na porta atual.', '🚫');
+        return;
+      }
+      miStickSettings.resolution = res;
+      try { localStorage.setItem('leandro_mistick_settings', JSON.stringify(miStickSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('Xiaomi Mi Stick', `Resolução HDMI: ${res}`, '📱');
+    }
+
+    function toggleMiStickPerformance() {
+      miStickSettings.performance = !miStickSettings.performance;
+      try { localStorage.setItem('leandro_mistick_settings', JSON.stringify(miStickSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('Xiaomi Mi Stick', miStickSettings.performance ? 'Modo Turbo Boost Ativo!' : 'Modo Econômico.', '🚀');
+    }
+
+    function toggleMiStickCec() {
+      if (!tvHardwareCapabilities.hasHdmiCec) {
+        showToast('Opção Indisponível', 'HDMI-CEC indisponível nesta entrada.', '🚫');
+        return;
+      }
+      miStickSettings.cec = !miStickSettings.cec;
+      try { localStorage.setItem('leandro_mistick_settings', JSON.stringify(miStickSettings)); } catch(e) {}
+      applyDeviceSettingsToUI();
+      showToast('Xiaomi Mi Stick', miStickSettings.cec ? 'Sincronia HDMI-CEC Ativada!' : 'CEC Desativado.', '🔗');
+    }
+
+    function cleanMiStickCache() {
+      const lbl = document.getElementById('lblMiCache');
+      if (lbl) lbl.textContent = '0 MB (Cache 100% Limpo)';
+      showToast('Xiaomi Mi Stick', '340 MB de cache liberados! O Mi Stick foi acelerado.', '🚀');
+    }
+
+    function rebootMiStick() {
+      showToast('Xiaomi Mi Stick', 'Reiniciando Mi TV Stick via comando HDMI-CEC...', '🔄');
+    }
+
+    // --- WEB AUDIO API: SOUND ON FOCUS NAVIGATION ---
+    let audioCtx = null;
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playFocusSound() {
+      try {
+        initAudioContext();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(780, audioCtx.currentTime + 0.05);
+
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch (e) {}
+    }
+
+    // --- XBOX INTEGRATION ---
+    function launchXboxConsole() {
+      showToast('Xbox Series S', 'Comutando TV TCL para HDMI 1 (4K 120Hz VRR Modo Jogo)...', '🎮');
+    }
+    function launchCloudGaming() {
+      showToast('Xbox Cloud', 'Iniciando Game Pass na Nuvem...', '☁️');
+      setTimeout(() => { try { window.open('https://www.xbox.com/play', '_blank'); } catch(e) {} }, 800);
+    }
+
+    // --- HOME THEATER LG BLUETOOTH CONTROL ---
+    let lgSoundState = {
+      power: true,
+      output: 'Home Theater LG (Bluetooth)',
+      volume: 45,
+      mode: 'Cinema Surround'
+    };
+
+    function toggleLgSoundPower() {
+      lgSoundState.power = !lgSoundState.power;
+      const statusText = lgSoundState.power ? 'Conectado (BT)' : 'Desligado';
+      const cardStatus = document.getElementById('lgSoundCardStatus');
+      const topStatus = document.getElementById('topLgSoundStatus');
+      const drawerStatus = document.getElementById('drawerAudioStatus');
+      const btnPower = document.getElementById('btnLgSoundPower');
+      const btnToggle = document.getElementById('drawerBtnSoundToggle');
+
+      if (lgSoundState.power) {
+        if (topStatus) topStatus.textContent = 'Conectado (BT)';
+        if (cardStatus) cardStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado';
+        if (drawerStatus) { drawerStatus.textContent = 'Conectado'; drawerStatus.className = 'text-[10px] text-pink-300 font-bold bg-pink-500/20 px-2 py-0.5 rounded-full'; }
+        if (btnPower) btnPower.textContent = 'Desligar Som';
+        if (btnToggle) btnToggle.textContent = '🔇 Mutar / Desligar Som';
+        showToast('Home Theater LG', 'Som sem fio ativado via Bluetooth.', '🔊');
+      } else {
+        if (topStatus) topStatus.textContent = 'Mudo / Off';
+        if (cardStatus) cardStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-400"></span> Desligado';
+        if (drawerStatus) { drawerStatus.textContent = 'Desligado'; drawerStatus.className = 'text-[10px] text-red-300 font-bold bg-red-500/20 px-2 py-0.5 rounded-full'; }
+        if (btnPower) btnPower.textContent = 'Ligar Som';
+        if (btnToggle) btnToggle.textContent = '🔊 Ligar Som';
+        showToast('Home Theater LG', 'Som mutado / desligado.', '🔇');
+      }
+    }
+
+    function setAudioOutput(target) {
+      lgSoundState.output = target;
+      const el = document.getElementById('currentAudioOutput');
+      if (el) el.textContent = target;
+      showToast('Saída de Áudio', `Saída alternada para: ${target}`, '🎧');
+    }
+
+    function setSoundMode(mode) {
+      lgSoundState.mode = mode;
+      showToast('Modo de Som', `Equalizador configurado para: ${mode}`, '🎵');
+    }
+
+    // --- NETWORK SPEED TEST ---
+    function testNetworkSpeed() {
+      showToast('Teste de Velocidade', 'Medindo latência e largura de banda na TV...', '📶');
+      const dl = document.getElementById('netDownloadSpeed');
+      const ping = document.getElementById('netPing');
+      if (dl) dl.textContent = 'Medindo...';
+      setTimeout(() => {
+        const speed = Math.floor(460 + Math.random() * 50);
+        const p = Math.floor(7 + Math.random() * 5);
+        if (dl) dl.textContent = `${speed} Mbps`;
+        if (ping) ping.textContent = `${p} ms`;
+        showToast('Velocidade Confirmada', `${speed} Mbps (Ping ${p}ms) - Conexão Excelente!`, '✅');
+      }, 1500);
+    }
+
+    // --- OLED PROTECTION / REFRESH ---
+    function runPixelRefresh() {
+      showToast('OLED Care TCL', 'Iniciando ciclo de descanso e calibração de pixels.', '✨');
+      closeDailyOptionsModal();
+    }
+    function turnOffScreenOnly() {
+      showToast('Modo Somente Áudio', 'A tela desligará em 5 segundos mantendo o som.', '🌙');
+      closeDailyOptionsModal();
+    }
+    function confirmTurnOffTv() {
+      showToast('Desligar TV', 'Enviando comando CEC de desligamento para a TCL 55 OLED.', '⏻');
+      closeDailyOptionsModal();
+    }
+
+    // --- CINEMA & YOUTUBE APPS ---
+    const defaultCinemaApps = [
+      { id: 'youtube', name: 'YouTube 4K', icon: '▶️', gradient: 'from-red-600 to-red-800', tag: 'Vídeos', url: 'https://www.youtube.com/tv' },
+      { id: 'smarttube', name: 'SmartTube', icon: '⚡', gradient: 'from-cyan-600 to-blue-900', tag: 'Sem Anúncios', url: 'https://smarttubeapp.github.io' },
+      { id: 'netflix', name: 'Netflix', icon: '🎬', gradient: 'from-red-700 to-black', tag: '4K HDR', url: 'https://www.netflix.com' },
+      { id: 'prime', name: 'Prime Video', icon: '📦', gradient: 'from-sky-600 to-slate-900', tag: 'Originals', url: 'https://www.primevideo.com' },
+      { id: 'max', name: 'Max (HBO)', icon: '🍿', gradient: 'from-purple-700 to-slate-950', tag: 'Filmes', url: 'https://www.max.com' },
+      { id: 'disney', name: 'Disney+', icon: '✨', gradient: 'from-blue-700 to-indigo-950', tag: 'Marvel/StarWars', url: 'https://www.disneyplus.com' },
+      { id: 'globoplay', name: 'Globoplay', icon: '🌐', gradient: 'from-orange-600 to-red-700', tag: 'Ao Vivo', url: 'https://globoplay.globo.com' },
+      { id: 'stremio', name: 'Stremio', icon: '🟣', gradient: 'from-purple-800 to-black', tag: 'Cinema Livre', url: 'https://www.stremio.com' },
+      { id: 'plex', name: 'Plex', icon: '📼', gradient: 'from-amber-600 to-black', tag: 'Servidor', url: 'https://app.plex.tv' },
+      { id: 'spotify', name: 'Spotify', icon: '🎵', gradient: 'from-emerald-600 to-slate-950', tag: 'Música & OST', url: 'https://open.spotify.com' },
+      { id: 'crunchyroll', name: 'Crunchyroll', icon: '🍥', gradient: 'from-orange-500 to-amber-700', tag: 'Animes', url: 'https://www.crunchyroll.com' },
+      { id: 'plutotv', name: 'Pluto TV', icon: '🪐', gradient: 'from-yellow-500 to-slate-800', tag: 'Canais Grátis', url: 'https://pluto.tv' }
+    ];
+
+    let cinemaApps = [];
+
+    function loadSavedApps() {
+      try {
+        const saved = localStorage.getItem('leandro_cine_apps');
+        cinemaApps = saved ? JSON.parse(saved) : [...defaultCinemaApps];
+      } catch (e) {
+        cinemaApps = [...defaultCinemaApps];
+      }
+    }
+
+    function renderCinemaApps() {
+      const container = document.getElementById('cinemaAppsContainer');
+      container.innerHTML = cinemaApps.map(app => `
+        <div 
+          tabindex="0"
+          onclick="launchApp('${app.id}', '${app.name}', '${app.url}')"
+          class="tv-focusable card-slate p-3 rounded-2xl cursor-pointer flex flex-col justify-between h-28 group border border-slate-700 hover:border-blue-400/50"
+          data-app-id="${app.id}"
+        >
+          <div class="flex items-center justify-between">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr ${app.gradient} flex items-center justify-center text-lg shadow">
+              ${app.icon}
+            </div>
+            <span class="text-[9px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-medium border border-slate-700/60">${app.tag}</span>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold text-white group-hover:text-blue-300 transition-colors">${app.name}</div>
+            <div class="text-[9px] text-slate-400 flex items-center gap-1 mt-0.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Assistir
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function launchApp(id, name, url) {
+      showToast('Iniciando', `Abrindo ${name} na sua TV TCL 55...`, '🎬');
+      if (url && url !== '#') {
+        setTimeout(() => { try { window.open(url, '_blank'); } catch (e) {} }, 800);
+      }
+    }
+
+    // --- FAVORITES MANAGER ---
+    function openEditAppsModal() {
+      renderEditFavoritesList();
+      renderCatalogGrid();
+      document.getElementById('modalEditApps').classList.remove('hidden');
+    }
+    function closeEditAppsModal() {
+      document.getElementById('modalEditApps').classList.add('hidden');
+      try { localStorage.setItem('leandro_cine_apps', JSON.stringify(cinemaApps)); } catch (e) {}
+      renderCinemaApps();
+      showToast('Salvo', 'Aplicativos atualizados com sucesso!', '✅');
+    }
+    function renderEditFavoritesList() {
+      const container = document.getElementById('editFavoritesList');
+      container.innerHTML = cinemaApps.map((app, index) => `
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800 text-xs border border-slate-700">
+          <div class="flex items-center gap-2">
+            <span class="text-base">${app.icon}</span>
+            <span class="font-bold text-white">${app.name}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            ${index > 0 ? `<button onclick="moveApp(${index}, -1)" class="tv-focusable px-2 py-0.5 rounded bg-slate-700 text-white font-bold" tabindex="0">▲</button>` : ''}
+            ${index < cinemaApps.length - 1 ? `<button onclick="moveApp(${index}, 1)" class="tv-focusable px-2 py-0.5 rounded bg-slate-700 text-white font-bold" tabindex="0">▼</button>` : ''}
+            <button onclick="removeApp(${index})" class="tv-focusable px-2 py-0.5 rounded bg-red-600/30 text-red-300 font-bold ml-1 border border-red-500/30" tabindex="0">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function renderCatalogGrid() {
+      const container = document.getElementById('catalogGrid');
+      const catalog = [
+        { id: 'deezer', name: 'Deezer', icon: '🎧', gradient: 'from-fuchsia-600 to-purple-900', tag: 'Música', url: 'https://www.deezer.com' },
+        { id: 'kodi', name: 'Kodi', icon: '💠', gradient: 'from-sky-600 to-blue-950', tag: 'Mídia', url: '#' },
+        { id: 'tiktoktv', name: 'TikTok TV', icon: '🎵', gradient: 'from-pink-600 to-black', tag: 'Vídeos', url: 'https://www.tiktok.com' }
+      ];
+      const available = catalog.filter(c => !cinemaApps.some(a => a.id === c.id));
+      container.innerHTML = available.map(app => `
+        <button onclick="addAppFromCatalog('${app.id}')" class="tv-focusable p-2 rounded-xl bg-slate-800 border border-slate-700 flex items-center gap-1.5 text-xs text-left" tabindex="0">
+          <span>${app.icon}</span>
+          <span class="font-bold text-white truncate">${app.name}</span>
+        </button>
+      `).join('');
+    }
+    function moveApp(index, dir) {
+      const target = index + dir;
+      if (target < 0 || target >= cinemaApps.length) return;
+      const tmp = cinemaApps[index];
+      cinemaApps[index] = cinemaApps[target];
+      cinemaApps[target] = tmp;
+      renderEditFavoritesList();
+    }
+    function removeApp(index) {
+      cinemaApps.splice(index, 1);
+      renderEditFavoritesList();
+      renderCatalogGrid();
+    }
+    function addAppFromCatalog(id) {
+      const catalog = [
+        { id: 'deezer', name: 'Deezer', icon: '🎧', gradient: 'from-fuchsia-600 to-purple-900', tag: 'Música', url: 'https://www.deezer.com' },
+        { id: 'kodi', name: 'Kodi', icon: '💠', gradient: 'from-sky-600 to-blue-950', tag: 'Mídia', url: '#' },
+        { id: 'tiktoktv', name: 'TikTok TV', icon: '🎵', gradient: 'from-pink-600 to-black', tag: 'Vídeos', url: 'https://www.tiktok.com' }
+      ];
+      const app = catalog.find(a => a.id === id);
+      if (app) { cinemaApps.push(app); renderEditFavoritesList(); renderCatalogGrid(); }
+    }
+    function addCustomApp() {
+      const name = document.getElementById('customAppName').value.trim();
+      const url = document.getElementById('customAppUrl').value.trim();
+      if (!name) return;
+      cinemaApps.push({ id: 'custom_' + Date.now(), name, icon: '🎬', gradient: 'from-blue-600 to-indigo-900', tag: 'Custom', url: url || '#' });
+      document.getElementById('customAppName').value = '';
+      document.getElementById('customAppUrl').value = '';
+      renderEditFavoritesList();
+    }
+    function restoreDefaultApps() {
+      cinemaApps = [...defaultCinemaApps];
+      renderEditFavoritesList();
+      renderCatalogGrid();
+    }
+
+    // --- NEWS ROTATION (POLÍTICA, ECONOMIA, TECNOLOGIA, GAMES) ---
+    const newsFeed = [
+      { cat: 'TECNOLOGIA', text: 'Xbox Game Pass recebe novos lançamentos de peso com suporte a 120 FPS no Series S e Series X.' },
+      { cat: 'ECONOMIA', text: 'Dólar comercial opera estável cotado a R$ 5,37 (+0,30%) com fluxo positivo de investimentos.' },
+      { cat: 'CINEMA', text: 'Novos lançamentos em 4K HDR e Dolby Vision chegam ao catálogo do YouTube e plataformas de streaming.' },
+      { cat: 'POLÍTICA', text: 'Congresso avança em pautas de modernização tecnológica e telecomunicações para o interior do país.' },
+      { cat: 'HARDWARE', text: 'Painéis OLED de 55 polegadas recebem nova calibração para pretos absolutos e latência inferior a 1ms.' }
+    ];
+    let newsIdx = 0;
+    let newsSec = 10;
+    function nextNewsHeadline() {
+      newsIdx = (newsIdx + 1) % newsFeed.length;
+      const n = newsFeed[newsIdx];
+      document.getElementById('newsTickerText').textContent = `"${n.text}"`;
+      const badge = document.getElementById('newsCategoryBadge');
+      if (badge) badge.textContent = n.cat;
+      newsSec = 10;
+    }
+    setInterval(() => {
+      newsSec--;
+      if (newsSec <= 0) nextNewsHeadline();
+      const el = document.getElementById('newsCountdown');
+      if (el) el.textContent = `${newsSec}s`;
+    }, 1000);
+
+    // --- RAM CLEANER GAMER ---
+    function cleanRamGamer() {
+      document.getElementById('ramText').textContent = '0.7 GB / 3.0 GB (23%)';
+      showToast('Modo Gamer Turbo', '100% de memória RAM liberada para o Xbox e Filmes 4K!', '🚀');
+    }
+
+    // --- WEATHER STATE (DEFAULT JACAREZINHO, PR) ---
+    let currentWeather = { 
+      city: 'Ourinhos, SP', 
+      temp: 28, 
+      condition: 'Ensolarado', 
+      icon: '☀️', 
+      feels: 30, 
+      humidity: 62, 
+      wind: 12, 
+      uv: '6 (Moderado)', 
+      maxMin: '18° / 31°' 
+    };
+
+    function loadSavedLocation() {
+      try {
+        const saved = localStorage.getItem('leandro_weather_data');
+        if (saved) currentWeather = JSON.parse(saved);
+      } catch (e) {}
+      applyWeatherToUI();
+    }
+    function applyWeatherToUI() {
+      document.getElementById('currentCityLabel').innerHTML = `<span class="text-blue-400">📍</span> ${currentWeather.city}`;
+      document.getElementById('topWeatherTemp').textContent = `${currentWeather.temp}°C`;
+      document.getElementById('topWeatherCondition').textContent = currentWeather.condition;
+      document.getElementById('topWeatherIcon').textContent = currentWeather.icon;
+      document.getElementById('topWeatherFeels').textContent = `${currentWeather.feels}°C`;
+      document.getElementById('topWeatherHumidity').textContent = `${currentWeather.humidity}%`;
+      document.getElementById('topWeatherWind').textContent = `${currentWeather.wind} km/h`;
+      const uvEl = document.getElementById('topWeatherUv');
+      if (uvEl) uvEl.textContent = currentWeather.uv || '6 (Moderado)';
+      const mmEl = document.getElementById('topWeatherMaxMin');
+      if (mmEl) mmEl.textContent = currentWeather.maxMin || '18° / 31°';
+    }
+    function openLocationModal() { document.getElementById('modalLocation').classList.remove('hidden'); }
+    function closeLocationModal() { document.getElementById('modalLocation').classList.add('hidden'); }
+    function setCity(cityName, temp, condition, icon, feels, humidity, wind, uv, maxMin) {
+      currentWeather = { city: cityName, temp, condition, icon, feels, humidity, wind, uv, maxMin };
+      try { localStorage.setItem('leandro_weather_data', JSON.stringify(currentWeather)); } catch (e) {}
+      applyWeatherToUI();
+      closeLocationModal();
+      showToast('Cidade Atualizada', `${cityName} configurada com sucesso!`, '📍');
+    }
+    function applyCustomCity() {
+      const val = document.getElementById('customCityInput').value.trim();
+      if (!val) return;
+      setCity(val, 27, 'Ensolarado', '🌤️', 29, 60, 11, '6 (Moderado)', '18° / 30°');
+      document.getElementById('customCityInput').value = '';
+    }
+
+    // --- MODALS & DRAWERS ---
+    function openAboutModal() { document.getElementById('modalAbout').classList.remove('hidden'); }
+    function closeAboutModal() { document.getElementById('modalAbout').classList.add('hidden'); }
+    function openDailyOptionsModal() { document.getElementById('modalDailyOptions').classList.remove('hidden'); }
+    function closeDailyOptionsModal() { document.getElementById('modalDailyOptions').classList.add('hidden'); }
+    function setSleepTimer(m) {
+      closeDailyOptionsModal();
+      showToast('Sleep Timer Ativo', `A TV TCL desligará em ${m} minutos.`, '⏱️');
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clockDisplay').textContent = `${h}:${m}:${s}`;
+      const opt = { weekday: 'long', day: 'numeric', month: 'long' };
+      document.getElementById('dateDisplay').textContent = now.toLocaleDateString('pt-BR', opt);
+    }
+
+    let toastTimeout = null;
+    function showToast(title, msg, icon = '🎮') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+
+    // --- DPAD REMOTE NAVIGATION WITH SOUND & SPOTLIGHT ---
+    function setupDpadNavigation() {
+      window.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (key === 'Escape' || key === 'Backspace' || key === 'GoBack') {
+          const openModals = document.querySelectorAll('.fixed.inset-0:not(.hidden)');
+          if (openModals.length > 0) {
+            e.preventDefault();
+            openModals.forEach(m => m.classList.add('hidden'));
+            return;
+          }
+        }
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+          e.preventDefault();
+          navigateDpad(key);
+        }
+      });
+
+      // Also attach focus listener to play sound and ensure spotlight is active
+      document.addEventListener('focusin', (e) => {
+        if (e.target && e.target.classList && e.target.classList.contains('tv-focusable')) {
+          playFocusSound();
+        }
+      });
+    }
+
+    function navigateDpad(direction) {
+      const focusables = Array.from(document.querySelectorAll('.tv-focusable:not(.hidden):not([disabled])')).filter(el => el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const current = document.activeElement;
+      if (!current || !focusables.includes(current)) {
+        focusables[0].focus();
+        playFocusSound();
+        return;
+      }
+      const cr = current.getBoundingClientRect();
+      const cx = cr.left + cr.width / 2;
+      const cy = cr.top + cr.height / 2;
+      let best = null;
+      let minD = Infinity;
+
+      for (let i = 0; i < focusables.length; i++) {
+        const el = focusables[i];
+        if (el === current) continue;
+        const r = el.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        const dx = x - cx;
+        const dy = y - cy;
+
+        let valid = false;
+        let dist = 0;
+        if (direction === 'ArrowRight' && dx > 8) { valid = true; dist = dx + Math.abs(dy) * 2; }
+        else if (direction === 'ArrowLeft' && dx < -8) { valid = true; dist = Math.abs(dx) + Math.abs(dy) * 2; }
+        else if (direction === 'ArrowDown' && dy > 8) { valid = true; dist = dy + Math.abs(dx) * 1.4; }
+        else if (direction === 'ArrowUp' && dy < -8) { valid = true; dist = Math.abs(dy) + Math.abs(dx) * 1.4; }
+
+        if (valid && dist < minD) {
+          minD = dist;
+          best = el;
+        }
+      }
+
+      if (best) {
+        best.focus();
+        playFocusSound();
+        best.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSavedLocation();
+      loadSavedDeviceSettings();
+      detectHardwareAuto();
+      loadSavedApps();
+      renderCinemaApps();
+      updateClock();
+      setInterval(updateClock, 1000);
+      setupDpadNavigation();
+
+      setTimeout(() => {
+        const first = document.querySelector('.tv-focusable');
+        if (first) first.focus();
+      }, 200);
+    });
+  </script>
+</body>
+</html>
